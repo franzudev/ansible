@@ -1,0 +1,5 @@
+- name: Convert to CentOS stream
+  command: "dnf --disablerepo '*' --enablerepo extras swap centos-linux-repos centos-stream-repos"
+
+- name: Sync distro
+  command: "dnf distro-sync -y"
