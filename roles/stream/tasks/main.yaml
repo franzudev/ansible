@@ -1,0 +1,17 @@
+- name: Convert to CentOS stream
+  ansible.builtin.shell:
+    cmd: "dnf --disablerepo '*' --enablerepo extras swap centos-linux-repos centos-stream-repos -y && touch converted"
+    creates: converted
+
+- name: Remove conflicting packages if they exists
+  ansible.builtin.dnf:
+    name:
+      - buildah
+      - podman
+      - containers-common
+    state: absent
+
+- name: Sync distro
+  ansible.builtin.shell:
+    cmd: "dnf distro-sync -y && touch synchronized"
+    creates: synchronized

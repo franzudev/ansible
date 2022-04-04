@@ -1,0 +1,15 @@
+---
+- hosts: targets
+  become: true
+  roles:
+  - role: stream
+
+- hosts: targets
+  become: true
+  roles:
+  - role: docker
+
+- hosts: targets
+  become: true
+  roles:
+  - role: partition

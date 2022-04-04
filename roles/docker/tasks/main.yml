@@ -1,0 +1,77 @@
+---
+
+- name: Install yum utils
+  ansible.builtin.yum:
+    name: yum-utils-4.0.21
+    state: present
+
+- name: Install device-mapper-persistent-data
+  ansible.builtin.yum:
+    name: device-mapper-persistent-data-0.9.0
+    state: present
+
+- name: Install lvm2
+  ansible.builtin.yum:
+    name: lvm2-8:2.03.14
+    state: present
+
+- name: Add Docker repo
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docker-ce.repo
+    mode: u=rw,g=r,o=r
+
+- name: Install Docker
+  ansible.builtin.package:
+    name: docker-ce-3:20.10.14
+    state: present
+
+- name: Install Docker CLI
+  ansible.builtin.package:
+    name: docker-ce-cli-1:20.10.14
+    state: present
+
+- name: Install Containerd
+  ansible.builtin.package:
+    name: containerd.io-1.5.11
+    state: present
+
+- name: install pip3
+  ansible.builtin.yum:
+    name: python3-pip-9.0.3
+    state: present
+
+- name: Install Docker Module for Python
+  ansible.builtin.pip:
+    name: docker
+
+# - name: Create a directory to override
+#  file:
+#    path: /etc/systemd/system/docker.service.d
+#    state: directory
+#    mode: '0755'
+#  become: true
+#
+# - name: Override docker service config
+#  copy:
+#    src: ../files/override.conf
+#    dest: /etc/systemd/system/docker.service.d/override.conf
+#    state: touch
+#    mode: u=rw,g=r,o=r
+#  become: true
+
+- name: Start Docker service
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Add user osboxes to docker group
+  ansible.builtin.user:
+    name: osboxes
+    groups: docker
+    append: true
+
+- name: Init a new swarm with default parameters
+  docker_swarm:
+    state: present
