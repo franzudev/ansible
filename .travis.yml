@@ -1,9 +1,12 @@
 ---
 language: python
-python: "3.6"
+python: "3.8"
 
 # Use the new container infrastructure
-sudo: false
+sudo: required
+
+services:
+  - docker
 
 # Install ansible
 addons:
@@ -13,14 +16,19 @@ addons:
 
 install:
   # Install ansible
-  - pip install ansible ansible-lint
+  - pip install docker ansible ansible-lint molecule
+  - pip install "molecule[docker]"
+  - ansible-galaxy collection install community.docker
 
   # Check ansible version
   - ansible --version
 
+  # Check molecule version
+  - molecule --version
+
   # Create ansible.cfg with correct roles_path
-  - printf '[defaults]\nroles_path=../' >ansible.cfg
+  - printf '[defaults]\nroles_path=./roles' >ansible.cfg
 
 script:
-  # Basic role syntax check
   - ansible-lint
+  - cd ./roles/docker && molecule test
