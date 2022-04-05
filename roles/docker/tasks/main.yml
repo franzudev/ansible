@@ -61,6 +61,7 @@
 #  become: true
 
 - name: Start Docker service
+  tags: molecule-notest
   ansible.builtin.service:
     name: docker
     state: started
@@ -73,5 +74,6 @@
     append: true
 
 - name: Init a new swarm with default parameters
+  tags: molecule-notest
   docker_swarm:
     state: present
