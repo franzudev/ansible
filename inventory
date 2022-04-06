@@ -1,6 +1,6 @@
-target1 ansible_host=ansible-target1 ansible_port=2223 ansible_connection=ssh ansible_user=osboxes
-target2 ansible_host=ansible-target2 ansible_port=2224 ansible_connection=ssh ansible_user=osboxes
+controller ansible_connection=local
+ansible-target1      ansible_host=192.168.56.21 ansible_ssh_private_key_file=/vagrant/.vagrant/machines/ansible-target1/virtualbox/private_key
+ansible-target2      ansible_host=192.168.56.22 ansible_ssh_private_key_file=/vagrant/.vagrant/machines/ansible-target2/virtualbox/private_key
 
 [targets]
-target1
-target2
+ansible-target[1:2]

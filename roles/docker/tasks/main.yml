@@ -77,3 +77,4 @@
   tags: molecule-notest
   docker_swarm:
     state: present
+    advertise_addr: eth1
