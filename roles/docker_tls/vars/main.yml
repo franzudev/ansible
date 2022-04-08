@@ -1,0 +1,10 @@
+ssl_flags: "-days 365 -passin pass:foobar"
+ssl_subj: "-subj '/C=IT/ST=IT/O=vagrant, Inc./CN={{ inventory_hostname }}'"
+csr_path: "/etc/ssl/csr/server.csr"
+ca_key: "/etc/ssl/private/ca-key.pem"
+ca: "/etc/ssl/certs/ca.pem"
+certificate: "/etc/ssl/certs/cert.pem"
+private_key: "/etc/ssl/private/key.pem"
+
+public_key_flags: "{{ ssl_flags }} {{ ssl_subj }} -sha256 -key {{ ca_key }} -out {{ ca }}"
+certificate_flags: "{{ ssl_flags }} -sha256 -in {{ csr_path }} -CA {{ ca }} -CAkey {{ ca_key }} -CAcreateserial -out {{ certificate }} -extfile extfile.cnf"

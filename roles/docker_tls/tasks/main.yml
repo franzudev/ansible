@@ -1,0 +1,85 @@
+---
+- name: Create /etc/ssl/private if it does not exist
+  ansible.builtin.file:
+    path: /etc/ssl/private
+    state: directory
+    mode: '0755'
+
+- name: Create /etc/ssl/csr if it does not exist
+  ansible.builtin.file:
+    path: /etc/ssl/csr
+    state: directory
+    mode: '0755'
+
+- name: Create /etc/ssl/csr if it does not exist
+  ansible.builtin.file:
+    path: /etc/ssl/certs
+    state: directory
+    mode: '0755'
+
+- name: Generate CA public key
+  ansible.builtin.command:
+    cmd: "openssl genrsa -passout pass:foobar -aes256 -out {{ ca_key }} 4096"
+    creates: "{{ ca_key }}"
+
+- name: Generate CA certificate
+  ansible.builtin.command:
+    cmd: "openssl req -new -x509 {{ public_key_flags }}"
+    creates: "{{ ca }}"
+
+- name: Generate an OpenSSL private key
+  ansible.builtin.command:
+    cmd: "openssl genrsa -out {{ private_key }} 4096"
+    creates: "{{ private_key }}"
+
+- name: Generate an OpenSSL Certificate Signing Request
+  ansible.builtin.command:
+    cmd: "openssl req -subj \"/CN={{ inventory_hostname }}\" -sha256 -new -key {{ private_key }} -out {{ csr_path }}"
+    creates: "{{ csr_path }}"
+
+- name: Add a line to a file if the file does not exist
+  ansible.builtin.lineinfile:
+    path: extfile.cnf
+    line: "subjectAltName = DNS:{{ inventory_hostname }},IP:{{ ansible_host }},IP:127.0.0.1"
+    create: "true"
+    mode: "644"
+
+- name: Ensure we have subjectAltName in /etc/services
+  ansible.builtin.lineinfile:
+    path: extfile.cnf
+    regexp: "^extendedKeyUsage = serverAuth"
+    insertafter: "^subjectAltName = DNS:{{ inventory_hostname }},IP:{{ ansible_host }},IP:127.0.0.1"
+    line: "extendedKeyUsage = serverAuth"
+
+- name: Generate Certificate
+  ansible.builtin.command:
+    cmd: "openssl x509 -req {{ certificate_flags }}"
+    creates: "{{ certificate }}"
+
+- name: Start firewalld service
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+  become: true
+
+- name: Open port
+  ansible.builtin.command:
+    cmd: "firewall-cmd --zone=public --add-port=2376/tcp --permanent"
+    creates: opened
+  become: true
+
+- name: Restart firewalld
+  ansible.builtin.command:
+    cmd: "firewall-cmd --reload"
+    creates: restarted
+  become: true
+
+- name: Get CA
+  ansible.builtin.fetch:
+    src: "{{ ca }}"
+    dest: /home/vagrant
+
+- name: Get CA key
+  ansible.builtin.fetch:
+    src: "{{ ca_key }}"
+    dest: /home/vagrant

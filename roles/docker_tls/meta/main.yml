@@ -1,0 +1,14 @@
+galaxy_info:
+  author: Federico François
+  namespace: ansible
+  description: Role to manage certificates for docker
+  license: MIT
+  min_ansible_version: 2.12
+  platforms:
+    - name: CentOS
+      versions:
+        - 8
+  galaxy_tags: []
+dependencies: []
+collections:
+  - community.cripto
