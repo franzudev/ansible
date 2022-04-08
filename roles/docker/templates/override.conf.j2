@@ -1,0 +1,4 @@
+[Service]
+ExecStart=
+ExecStart=/usr/bin/dockerd --containerd=/run/containerd/containerd.sock -H fd:// -H tcp://0.0.0.0:2376 --tlsverify --tlscacert=/etc/ssl/certs/ca.pem --tlscert=/etc/ssl/certs/cert.pem --tlskey=/etc/ssl/private/key.pem
+
