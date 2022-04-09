@@ -17,7 +17,7 @@
 - name: Create certificate for ansible-target1
   ansible.builtin.command:
     cmd: "openssl x509 -req \
-          -passin pass:foobar \
+          -passin pass:{{ cert_pass }} \
           -days 365 \
           -sha256 \
           -in /home/vagrant/client.csr \
@@ -33,7 +33,7 @@
 - name: Create certificate for ansible-target2
   ansible.builtin.command:
     cmd: "openssl x509 -req \
-          -passin pass:foobar \
+          -passin pass:{{ cert_pass }} \
           -days 365 \
           -sha256 \
           -in /home/vagrant/client.csr \

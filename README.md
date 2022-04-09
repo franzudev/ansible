@@ -13,6 +13,13 @@ Trying ansible with travis-ci, molecule, ansible-lint
 - [Docker](https://docs.docker.com/get-docker/)
 - [Molecule](https://molecule.readthedocs.io/en/latest/)
 
+Set the value of cert_pass in `./group_vars/all/secrets.yaml` without spaces, for the generation of openssl certificates.
+``` yaml
+# ./group_vars/all/secrets.yaml
+
+cert_pass: "secret_pass"
+```
+
 ### Usage
 
 

@@ -32,4 +32,3 @@ install:
 script:
   - ansible-lint
   - cd ./roles/docker && molecule test
-  - cd ../docker_tls && molecule test

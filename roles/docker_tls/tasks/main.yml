@@ -24,7 +24,7 @@
 
 - name: Generate CA public key
   ansible.builtin.command:
-    cmd: "openssl genrsa -passout pass:foobar -aes256 -out {{ ca_key }} 4096"
+    cmd: "openssl genrsa -passout pass:{{ cert_pass }} -aes256 -out {{ ca_key }} 4096"
     creates: "{{ ca_key }}"
 
 - name: Generate CA certificate
