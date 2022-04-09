@@ -1,0 +1,70 @@
+---
+- name: Generate an OpenSSL client key
+  ansible.builtin.command:
+    cmd: "openssl genrsa -out /home/vagrant/key.pem 4096"
+    creates: /home/vagrant/key.pem
+
+- name: Generate an OpenSSL Certificate Signing Request
+  ansible.builtin.command:
+    cmd: "openssl req -subj '/CN=client' -new -key /home/vagrant/key.pem -out /home/vagrant/client.csr"
+    creates: /home/vagrant/client.csr
+
+- name: Create file with extendedKeyUsage
+  ansible.builtin.shell:
+    cmd: "echo extendedKeyUsage = clientAuth >> /home/vagrant/extfile-client.cnf"
+    creates: /home/vagrant/extfile-client.cnf
+
+- name: Create certificate for ansible-target1
+  ansible.builtin.command:
+    cmd: "openssl x509 -req \
+          -passin pass:foobar \
+          -days 365 \
+          -sha256 \
+          -in /home/vagrant/client.csr \
+          -CA /home/vagrant/ansible-target1/etc/ssl/certs/ca.pem \
+          -CAkey /home/vagrant/ansible-target1/etc/ssl/private/ca-key.pem \
+          -CAcreateserial \
+          -out /home/vagrant/ansible1.pem \
+          -extfile /home/vagrant/extfile-client.cnf"
+    creates: /home/vagrant/ansible1.pem
+  become: true
+  become_user: root
+
+- name: Create certificate for ansible-target2
+  ansible.builtin.command:
+    cmd: "openssl x509 -req \
+          -passin pass:foobar \
+          -days 365 \
+          -sha256 \
+          -in /home/vagrant/client.csr \
+          -CA /home/vagrant/ansible-target2/etc/ssl/certs/ca.pem \
+          -CAkey /home/vagrant/ansible-target2/etc/ssl/private/ca-key.pem \
+          -CAcreateserial \
+          -out /home/vagrant/ansible2.pem \
+          -extfile /home/vagrant/extfile-client.cnf"
+    creates: /home/vagrant/ansible2.pem
+  become: true
+  become_user: root
+
+- name: Get docker version on remote target1
+  ansible.builtin.command:
+    cmd: "docker \
+          --tlsverify \
+          --tlscacert=/home/vagrant/ansible-target1/etc/ssl/certs/ca.pem \
+          --tlscert=/home/vagrant/ansible1.pem \
+          --tlskey=/home/vagrant/key.pem \
+          -H=192.168.56.21:2376 version"
+  become_user: vagrant
+  register: my_output
+  changed_when: my_output.rc != 0
+
+- name: Call docker on remote target2
+  ansible.builtin.command:
+    cmd: "docker \
+          --tlsverify \
+          --tlscacert=/home/vagrant/ansible-target2/etc/ssl/certs/ca.pem \
+          --tlscert=/home/vagrant/ansible2.pem \
+          --tlskey=/home/vagrant/key.pem \
+          -H=192.168.56.22:2376 version"
+  register: my_output
+  changed_when: my_output.rc != 0

@@ -18,3 +18,8 @@
   become: true
   roles:
   - role: partition
+
+- hosts: controller
+  become_user: vagrant
+  roles:
+  - role: client_tls
