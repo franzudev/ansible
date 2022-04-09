@@ -17,6 +17,11 @@
     state: directory
     mode: '0755'
 
+- name: Assure openssl is present
+  ansible.builtin.yum:
+    name: openssl
+    state: present
+
 - name: Generate CA public key
   ansible.builtin.command:
     cmd: "openssl genrsa -passout pass:foobar -aes256 -out {{ ca_key }} 4096"
@@ -52,34 +57,40 @@
     line: "extendedKeyUsage = serverAuth"
 
 - name: Generate Certificate
+  tags: molecule-notest
   ansible.builtin.command:
     cmd: "openssl x509 -req {{ certificate_flags }}"
     creates: "{{ certificate }}"
 
 - name: Start firewalld service
+  tags: molecule-notest
   ansible.builtin.service:
     name: firewalld
     state: started
   become: true
 
 - name: Open port
+  tags: molecule-notest
   ansible.builtin.command:
     cmd: "firewall-cmd --zone=public --add-port=2376/tcp --permanent"
     creates: opened
   become: true
 
 - name: Restart firewalld
+  tags: molecule-notest
   ansible.builtin.command:
     cmd: "firewall-cmd --reload"
     creates: restarted
   become: true
 
 - name: Get CA
+  tags: molecule-notest
   ansible.builtin.fetch:
     src: "{{ ca }}"
     dest: /home/vagrant
 
 - name: Get CA key
+  tags: molecule-notest
   ansible.builtin.fetch:
     src: "{{ ca_key }}"
     dest: /home/vagrant

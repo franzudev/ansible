@@ -68,6 +68,7 @@
     backup: false
 
 - name: Restart docker-daemon
+  tags: molecule-notest
   ansible.builtin.systemd:
     daemon_reload: true
     name: docker
